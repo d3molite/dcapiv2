@@ -36,8 +36,6 @@ class COG_React(commands.Cog):
         # iterate over messages
         for msgo in messageobj:
 
-            print(msgo.emoji_id)
-
             # if the message contains the text to react to
             if msgo.reaction_text.lower() in message.content.lower():
 
@@ -56,7 +54,6 @@ class COG_React(commands.Cog):
                     else:
                         emoji = msgo.emoji_id
 
-                    print(emoji)
                     await message.add_reaction(emoji)
 
             # set a chance
