@@ -111,7 +111,7 @@ def get_data(shorthand):
 
         data = FAQ.objects.all()
         faq = FAQ()
-        fields = ["Question", "Answer", "Active"]
+        fields = ["Category", "Answer", "Active"]
         url = get_cog_url(shorthand)
 
     return fields, data, url

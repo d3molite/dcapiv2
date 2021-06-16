@@ -1,6 +1,3 @@
-from asyncio.windows_events import NULL
-
-
 cog_descriptions = {
     "role": "Role Management",
     "faq": "FAQ Functions",
