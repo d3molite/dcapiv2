@@ -1,0 +1,57 @@
+{% load static %}
+
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous" />
+
+    <!-- GOOGLE FONTS -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <!-- Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+
+    <!-- Own CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'api_gui/main.css' %}" />
+
+    {% if title %}
+    <title>{{ title }}</title>
+    {% else %}
+    <title>Bot Management Portal</title>
+    {% endif %}
+
+</head>
+
+<body>
+    <header class="site-header">
+        <nav class="navbar navbar-expand-md fixed-top">
+            <div class="container dropshadow-flat navfill">
+                <a class="navbar-brand" hred="{% url 'gui-main' %}">
+                    <div class=navlogo>
+                        BOT MANAGEMENT PORTAL
+                    </div>
+                </a>
+            </div>
+
+        </nav>
+    </header>
+    <main role=main class="container h-100 dropshadow-flat">
+        <!-- wrap the content in a fill div that extends behind the navbar-->
+        <div class="fill">
+            <!-- shift the content down and apply borders and styling to the shifted content -->
+            <div class="shift">
+                <div class="content">
+                    {% block content %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

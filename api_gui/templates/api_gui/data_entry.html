@@ -1,0 +1,29 @@
+{% extends "api_gui/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="content-master">
+    <div class="content-heading">
+        Active {{ name }}
+    </div>
+    <div class="table-headings">
+        <div>
+            Server Name
+        </div>
+    </div>
+
+    {% for cog in cogs %}
+    <a href="/bot/{{ slug1 }}/{{ slug2 }}/{{ cog }}">
+        <div class="bot-item">
+            <div>
+                {{ cog }}
+            </div>
+            <div>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+{% endblock content %}

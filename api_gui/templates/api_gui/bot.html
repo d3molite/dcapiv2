@@ -1,0 +1,29 @@
+{% extends "api_gui/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="content-master">
+    <div class="content-heading">
+        Active Servers for {{ name }}
+    </div>
+    <div class="table-headings">
+        <div>
+            Server Name
+        </div>
+    </div>
+
+    {% for server in servers %}
+    <a href="/bot/{{ bot_shorthand }}/{{ server.shorthand }}">
+        <div class="bot-item">
+            <div>
+                {{ server }}
+            </div>
+            <div>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+{% endblock content %}

@@ -1,0 +1,30 @@
+{% extends "api_gui/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="content-master">
+    <div class="content-heading">
+        ACTIVE BOT SESSIONS
+    </div>
+    <div class="table-headings">
+        <div>
+            Bot Name
+        </div>
+        <div>
+            Host Status
+        </div>
+    </div>
+    {% for bot in bots %}
+    <a href="/bot/{{ bot.shorthand }}">
+        <div class="bot-item">
+            <div>
+                {{ bot.name }}
+            </div>
+            <div>
+                {{ bot.logged_in }}
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endblock content %}
