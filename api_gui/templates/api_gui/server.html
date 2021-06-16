@@ -9,15 +9,15 @@
     </div>
     <div class="table-headings">
         <div>
-            Server Name
+            Cog Name
         </div>
     </div>
 
     {% for cog in cogs %}
-    <a href="/bot/{{ slug1 }}/{{ slug2 }}/{{ cog }}">
+    <a href="/bot/{{ slug1 }}/{{ slug2 }}/{{ cog.short }}">
         <div class="bot-item">
             <div>
-                {{ cog }}
+                {{ cog.long }}
             </div>
             <div>
             </div>

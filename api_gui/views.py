@@ -7,6 +7,7 @@ import sys
 # import the bot dictionary
 from dcapiv2.wsgi import bots
 from api_bots.models import Server, Bot, FAQ
+from api_bots.scripts.bot.cogs import descriptions as cog_desc
 
 # Create your views here.
 
@@ -61,11 +62,13 @@ def server(request, bot_shorthand, server_shorthand):
 def cog(request, bot_shorthand, server_shorthand, cog_shorthand):
 
     # get the data entries for the cog
-    fields, dt = get_data(cog_shorthand)
+    fields, dt, url = get_data(cog_shorthand)
 
-    data = {"data": dt, "fields": fields, "name": cog_shorthand}
+    print(dt)
 
-    return render(request, "api_gui/data_entry.html", data)
+    data = {"data": dt, "fields": fields, "name": cog_desc.getDesc(cog_shorthand)}
+
+    return render(request, url, data)
 
 
 # function to get info about bots
@@ -83,8 +86,6 @@ def get_bots_info():
 
         bot_info.append(bot_dict)
 
-    print(bots)
-
     return bot_info
 
 
@@ -94,7 +95,10 @@ def get_cogs(shorthand):
     cog_info = []
 
     for cog in Bot.objects.get(shorthand=shorthand).cogs.split(","):
-        cog_info.append(cog)
+        cog_dict = {}
+        cog_dict["short"] = cog
+        cog_dict["long"] = cog_desc.getDesc(cog)
+        cog_info.append(cog_dict)
 
     return cog_info
 
@@ -108,5 +112,18 @@ def get_data(shorthand):
         data = FAQ.objects.all()
         faq = FAQ()
         fields = ["Question", "Answer", "Active"]
+        url = get_cog_url(shorthand)
 
-    return fields, data
+    return fields, data, url
+
+
+def get_cog_url(shorthand):
+    dict = {
+        "faq": "api_gui/cog_info/faq.html",
+        "default": "api_gui/data_entry.html",
+    }
+
+    if dict.get(shorthand) != None:
+        return dict.get(shorthand)
+    else:
+        return dict.get("default")

@@ -1,0 +1,53 @@
+{% extends "api_gui/data_entry.html" %}
+
+{% load static %}
+
+{% block faq %}
+<div class="table-headings">
+    <div>
+        FAQ Items
+    </div>
+</div>
+
+{% for item in data %}
+
+<div class="bot-item">
+    <div class="faq-item">
+        <div class="faq-line">
+            <div class="faq-headline">
+                Type
+            </div>
+            <div class="faq-headline">
+                Active
+            </div>
+        </div>
+        <div class="faq-line">
+            <div>
+                {{ item }}
+            </div>
+            <div class="faq-active">
+                {% if item.active == True %}
+                ✔
+                {% else %}
+                ✖
+                {% endif %}
+            </div>
+        </div>
+        <div class="hline"></div>
+        <div class="faq-headline">
+            Question
+        </div>
+        <div>
+            {{ item.question }}
+        </div>
+        <div class="hline"></div>
+        <div class="faq-headline">
+            Answer
+        </div>
+        <div>
+            {{ item.answer }}
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
