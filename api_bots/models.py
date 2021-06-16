@@ -111,6 +111,77 @@ class Server(models.Model):
         return list(cls.objects.values_list("serverid", "name"))
 
 
+# model that houses all channel settings for specific servers
+class Channel(models.Model):
+
+    # channel name
+    name = models.CharField(max_length=100, help_text="Name of the Channel")
+
+    # channel id
+    channelid = models.CharField(help_text="Channel ID", max_length=100)
+
+    # server
+    server = models.CharField(
+        max_length=100, choices=Server.get_all_objects(), null=True
+    )
+
+    def __str__(self):
+        return self.server.name + " - " + self.name
+
+    @classmethod
+    def get_all_objects(cls):
+
+        return list(cls.objects.values_list("channelid", "name"))
+
+
+# model that houses all message settings for specific servers
+class Message(models.Model):
+
+    # message description
+    name = models.CharField(max_length=100, help_text="Short Description")
+
+    # channel id
+    messageid = models.CharField(help_text="Message ID", max_length=100, default="0")
+
+    # server
+    server = models.CharField(
+        max_length=100, choices=Server.get_all_objects(), null=True
+    )
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def get_all_objects(cls):
+
+        return list(cls.objects.values_list("messageid", "name"))
+
+
+# model that houses all emoji settings for specific servers
+class Emoji(models.Model):
+
+    # emoji name
+    name = models.CharField(max_length=100, help_text="name of the emoji")
+
+    # emoji descriptor
+    emoji = models.CharField(
+        max_length=200, help_text="UTF Emoji, or emojiname in format EMOJI"
+    )
+
+    # server
+    server = models.CharField(
+        max_length=100, choices=Server.get_all_objects(), null=True
+    )
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def get_all_objects(cls):
+
+        return list(cls.objects.values_list("emoji", "name"))
+
+
 class FAQ(models.Model):
 
     # comma separated list of triggers to be used for this faq
@@ -182,13 +253,44 @@ class Role(models.Model):
     role_id = models.BigIntegerField()
 
     # message_id
-    message_id = models.BigIntegerField()
+    message_id = models.CharField(
+        max_length=100, choices=Message.get_all_objects(), null=True
+    )
 
     # emoji name
-    emoji_id = models.CharField(max_length=200)
+    emoji_id = models.CharField(
+        max_length=100, choices=Emoji.get_all_objects(), null=True
+    )
 
     # main role?
     role_ismain = models.BooleanField(default=False)
+
+    def __str__(self):
+
+        return str(self.name)
+
+
+# class that allows the bot to react to a specific message with an emoji
+class MessageReaction(models.Model):
+
+    # name
+    name = models.CharField(max_length=200)
+
+    # server field
+    server = models.CharField(
+        max_length=100, choices=Server.get_all_objects(), null=True
+    )
+
+    # emoji name
+    emoji_id = models.CharField(
+        max_length=100, choices=Emoji.get_all_objects(), null=True
+    )
+
+    # reaction chance
+    reaction_chance = models.IntegerField(default=0)
+
+    # text to react to
+    reaction_text = models.CharField(max_length=200)
 
     def __str__(self):
 

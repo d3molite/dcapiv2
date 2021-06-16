@@ -3,7 +3,7 @@ import discord, asyncio
 from discord.ext import commands, tasks
 
 # pylint: disable=relative-beyond-top-level
-from .cogs import faq, help, feedback, role
+from .cogs import faq, help, feedback, role, react
 
 # main class that the discord bots runs on
 class Bot:
@@ -83,6 +83,14 @@ class Bot:
 
                 self.bot.add_cog(
                     role.COG_Role(
+                        bot=self.bot, name=self.name, embed_color=self.embed_color
+                    )
+                )
+
+            if cog == "react":
+
+                self.bot.add_cog(
+                    react.COG_React(
                         bot=self.bot, name=self.name, embed_color=self.embed_color
                     )
                 )
