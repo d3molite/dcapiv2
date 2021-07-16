@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "api_bots.apps.ApiBotsConfig",
     "api_gui.apps.ApiGuiConfig",
     "api_users.apps.ApiUsersConfig",
+    "django.contrib.postgres",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -132,3 +134,5 @@ MEDIA_URL = "/media/"
 
 # ready flag
 READY = False
+
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'

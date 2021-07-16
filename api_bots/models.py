@@ -133,6 +133,9 @@ class Channel(models.Model):
 
         return list(cls.objects.values_list("channelid", "name"))
 
+    def _post_save(self):
+        self.reload()
+
 
 # model that houses all message settings for specific servers
 class Message(models.Model):
@@ -144,9 +147,7 @@ class Message(models.Model):
     messageid = models.CharField(help_text="Message ID", max_length=100, default="0")
 
     # server
-    server = models.CharField(
-        max_length=100, choices=Server.get_all_objects(), null=True
-    )
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
@@ -155,6 +156,9 @@ class Message(models.Model):
     def get_all_objects(cls):
 
         return list(cls.objects.values_list("messageid", "name"))
+
+    def _post_save(self):
+        self.reload()
 
 
 # model that houses all emoji settings for specific servers
@@ -169,8 +173,8 @@ class Emoji(models.Model):
     )
 
     # server
-    server = models.CharField(
-        max_length=100, choices=Server.get_all_objects(), null=True
+    server = models.ForeignKey(
+        Server, on_delete=models.CASCADE, null=True
     )
 
     def __str__(self):
@@ -180,6 +184,9 @@ class Emoji(models.Model):
     def get_all_objects(cls):
 
         return list(cls.objects.values_list("emoji", "name"))
+
+    def _post_save(self):
+        self.reload()
 
 
 class FAQ(models.Model):
@@ -201,8 +208,8 @@ class FAQ(models.Model):
     )
 
     # server field
-    server = models.CharField(
-        max_length=100, choices=Server.get_all_objects(), null=True
+    server = models.ForeignKey(
+        Server, on_delete=models.CASCADE, null=True
     )
 
     # checkmark to see if the model is active
@@ -216,12 +223,15 @@ class FAQ(models.Model):
 
         return self.active
 
+    def _post_save(self):
+        self.reload()
+
 
 class VoiceChannel(models.Model):
 
     # server field
-    server = models.CharField(
-        max_length=100, choices=Server.get_all_objects(), null=True
+    server = models.ForeignKey(
+        Server, on_delete=models.CASCADE, null=True
     )
 
     # voice category channel
@@ -238,37 +248,50 @@ class VoiceChannel(models.Model):
 
         return str(Server.objects.get(serverid=self.server).name)
 
+    def _post_save(self):
+        self.reload()
+
 
 class Role(models.Model):
 
     # server field
-    server = models.CharField(
-        max_length=100, choices=Server.get_all_objects(), null=True
-    )
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True)
 
     # role name
     name = models.CharField(max_length=200)
 
     # role id
-    role_id = models.BigIntegerField()
+    roleid = models.CharField(max_length=100, null=True)
+
+    def __str__(self):
+
+        return str(self.name)
+
+    def _post_save(self):
+        self.reload()
+
+
+# class that matches roles to their assignment
+class RoleAssigner(models.Model):
+    
+    # server field
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True)
+
+    # role field
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, null=True)
 
     # message_id
-    message_id = models.CharField(
-        max_length=100, choices=Message.get_all_objects(), null=True
-    )
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, null=True)
 
-    # emoji name
-    emoji_id = models.CharField(
-        max_length=100, choices=Emoji.get_all_objects(), null=True
-    )
+    # emoji
+    emoji = models.ForeignKey(Emoji, on_delete=models.CASCADE, null=True)
 
     # main role?
     role_ismain = models.BooleanField(default=False)
 
     def __str__(self):
 
-        return str(self.name)
-
+        return str(self.role.name)
 
 # class that allows the bot to react to a specific message with an emoji
 class MessageReaction(models.Model):
@@ -295,3 +318,35 @@ class MessageReaction(models.Model):
     def __str__(self):
 
         return str(self.name)
+
+    def _post_save(self):
+        self.reload()
+
+
+# class that stores pronoun info
+class Pronoun(models.Model):
+
+    # name
+    name = models.CharField(max_length=200)
+
+    # server field
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True)
+
+    # emoji
+    emoji = models.ForeignKey(Emoji, on_delete=models.CASCADE, null=True)
+
+    # message
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, null=True)
+
+    # role
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, null=True)
+
+    # pronoun text
+    pronoun = models.CharField(max_length=200)
+
+    def __str__(self):
+
+        return str(self.name)
+
+    def _post_save(self):
+        self.reload()
