@@ -3,7 +3,7 @@ import discord, asyncio
 from discord.ext import commands, tasks
 
 # pylint: disable=relative-beyond-top-level
-from .cogs import faq, help, feedback, role, react, pronouns
+from .cogs import faq, help, feedback, role, react, pronouns, voicechannel
 
 # main class that the discord bots runs on
 class Bot:
@@ -99,6 +99,14 @@ class Bot:
 
                 self.bot.add_cog(
                     pronouns.COG_Pronouns(
+                        bot=self.bot, name=self.name, embed_color=self.embed_color
+                    )
+                )
+
+            if cog == "voicechannel":
+
+                self.bot.add_cog(
+                    voicechannel.COG_VoiceChannel(
                         bot=self.bot, name=self.name, embed_color=self.embed_color
                     )
                 )

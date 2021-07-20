@@ -121,9 +121,7 @@ class Channel(models.Model):
     channelid = models.CharField(help_text="Channel ID", max_length=100)
 
     # server
-    server = models.CharField(
-        max_length=100, choices=Server.get_all_objects(), null=True
-    )
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True    )
 
     def __str__(self):
         return self.server.name + " - " + self.name
@@ -136,6 +134,28 @@ class Channel(models.Model):
     def _post_save(self):
         self.reload()
 
+# model that houses all channel settings for specific servers
+class Category(models.Model):
+
+    # channel name
+    name = models.CharField(max_length=100, help_text="Name of the Channel")
+
+    # channel id
+    channelid = models.CharField(help_text="Channel ID", max_length=100)
+
+    # server
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.server.name + " - " + self.name
+
+    @classmethod
+    def get_all_objects(cls):
+
+        return list(cls.objects.values_list("channelid", "name"))
+
+    def _post_save(self):
+        self.reload()
 
 # model that houses all message settings for specific servers
 class Message(models.Model):
@@ -230,23 +250,20 @@ class FAQ(models.Model):
 class VoiceChannel(models.Model):
 
     # server field
-    server = models.ForeignKey(
-        Server, on_delete=models.CASCADE, null=True
-    )
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True)
 
     # voice category channel
-    voice_category = models.CharField(
-        help_text="Voicechannel Category ID", max_length=100, default="0"
-    )
+    voice_category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
 
     # voice request channel
-    voice_request = models.CharField(
-        help_text="Voicechannel Request ID", max_length=100, default="0"
-    )
+    voice_request = models.ForeignKey(Channel, on_delete=models.CASCADE, null=True)
+
+    # delete timeout
+    voice_delay = models.IntegerField()
 
     def __str__(self):
 
-        return str(Server.objects.get(serverid=self.server).name)
+        return str(self.server.name)
 
     def _post_save(self):
         self.reload()
@@ -300,14 +317,10 @@ class MessageReaction(models.Model):
     name = models.CharField(max_length=200)
 
     # server field
-    server = models.CharField(
-        max_length=100, choices=Server.get_all_objects(), null=True
-    )
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True)
 
     # emoji name
-    emoji_id = models.CharField(
-        max_length=100, choices=Emoji.get_all_objects(), null=True
-    )
+    emoji_id = models.ForeignKey(Emoji, on_delete=models.CASCADE, null=True)
 
     # reaction chance
     reaction_chance = models.IntegerField(default=0)

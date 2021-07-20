@@ -12,6 +12,7 @@ class EmojiAdmin(admin.ModelAdmin):
 admin.site.register(Bot)
 admin.site.register(FAQ)
 admin.site.register(Server)
+admin.site.register(Category)
 admin.site.register(Channel)
 admin.site.register(Message)
 admin.site.register(Emoji, EmojiAdmin)
