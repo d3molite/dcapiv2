@@ -61,8 +61,13 @@ class COG_VoiceChannel(commands.Cog):
                         server.categories, id=int(chat.voice_category.channelid)
                     )
 
-                    channel = await category.create_voice_channel(
-                        name=self.create_name(ctx)
+                    chnm = self.create_name(ctx)
+
+                    channel = await category.create_voice_channel(name=chnm)
+
+                    # get the category
+                    status = discord.utils.get(
+                        server.channels, id=int(chat.voice_request.channelid)
                     )
 
                     self.chats.append(
@@ -75,6 +80,8 @@ class COG_VoiceChannel(commands.Cog):
                             "status": int(chat.voice_request.channelid),
                         }
                     )
+
+                    await status.send("Channel " + chnm + " has been created!")
                 else:
                     await ctx.message.channel.send(
                         "You must be in channel <#"
@@ -145,8 +152,6 @@ class COG_VoiceChannel(commands.Cog):
 
             # get the server object
             server = self.bot.get_guild(int(voice.server.serverid))
-
-            print(voice.server.serverid)
 
             # get the category
             category = discord.utils.get(

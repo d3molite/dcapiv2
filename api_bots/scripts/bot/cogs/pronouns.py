@@ -109,8 +109,9 @@ class COG_Pronouns(commands.Cog):
         print(user)
 
         # check if the user is already in a role
-        async_check = sync_to_async(self.check_user_for_role, True)
-        role, pronoun = await async_check(payload.guild_id, payload.user_id)
+        role, pronoun = await self.check_user_for_role(
+            payload.guild_id, payload.user_id
+        )
 
         print(role, pronoun)
 
@@ -140,7 +141,7 @@ class COG_Pronouns(commands.Cog):
             ):
 
                 # get the role object
-                
+
                 role = discord.utils.get(server.roles, id=int(pronoun.role.roleid))
 
                 if user not in role.members:
@@ -222,7 +223,7 @@ class COG_Pronouns(commands.Cog):
             return False
 
     # check if the user is already in a role
-    def check_user_for_role(self, guildid, userid):
+    async def check_user_for_role(self, guildid, userid):
 
         # get the server object
         server = self.bot.get_guild(int(guildid))
@@ -230,7 +231,13 @@ class COG_Pronouns(commands.Cog):
         # get the user object
         user = discord.utils.get(server.members, id=int(userid))
 
-        for pronoun in self.get_pronoun_list():
+        # wrap the get role objects function into sync to async
+        async_get_pronouns = sync_to_async(self.get_pronoun_list, thread_sensitive=True)
+
+        # get all the pronouns
+        pronouns = await async_get_pronouns(guildid=guildid)
+
+        for pronoun in pronouns:
 
             role = discord.utils.get(server.roles, id=int(pronoun.role.roleid))
 
