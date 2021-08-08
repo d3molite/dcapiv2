@@ -26,8 +26,21 @@ class COG_Ticket(commands.Cog):
         print("LOADED COG TICKET ON " + self.name)
         print("------------------")
 
-        with open(r"api_bots/scripts/bot/cogs/ticket.yaml") as f:
-            self.ticket_msg = yaml.load(f, Loader=yaml.FullLoader)
+        self.ticket_msg = {
+            "invalid":{
+                "de": "Hallo USER, vielen Dank für deine Anmeldung.\nDein Ticket ist leider ungültig.\nBitte überprüfe den eingegebenen Code und versuche es erneut.",
+                "en": "Hello USER, thank you for your registration.\nYour ticket code is invalid.\nPlease check the code you have entered and try again.",
+                },
+            "used":{
+                "de": "Hallo USER, vielen Dank für deine Anmeldung.\nDein Ticket ist leider bereits verwendet worden.\nBitte überprüfe den eingegebenen Code und versuche es erneut.",
+                "en": "Hello USER, thank you for your registration.\nYour ticket code has already been used.\nPlease check the code you have entered and try again.",
+                },
+            "success":{
+                "de": "Hallo USER, vielen Dank für deine Anmeldung.\nDeine Anmeldung war erfolgreich, dir wurden folgende Rollen zugewiesen - ROLES\nWillkommen zum DCW",
+                "en": "Hello USER, thank you for your registration.\nThe activation of your ticket was successful, you have been assigned the following roles - ROLES\nWelcome to DCW",
+                }
+            }
+        
 
     @commands.command(name="ticket")
     async def ticket(self, ctx):
