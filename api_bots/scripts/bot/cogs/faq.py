@@ -65,8 +65,6 @@ class COG_FAQ(commands.Cog):
 
         await ctx.message.channel.send(self.notfound.replace("{PREFIX}", self.prefix))
 
-        pass
-
     # function to create a help embed
     def create_help_embed(self, dict):
 
@@ -108,6 +106,8 @@ class COG_FAQ(commands.Cog):
         # iterate through all models
         for faq in faq_list:
 
+            _ = faq.server
+
             # add the first object of all triggers into the list
             namelist.append(faq.keywords.split(",")[0])
 
@@ -128,6 +128,6 @@ class COG_FAQ(commands.Cog):
         if guildid == None:
             faqs = FAQ.objects.filter(active=True)
         else:
-            faqs = FAQ.objects.filter(server=str(guildid), active=True)
+            faqs = FAQ.objects.filter(server__serverid=str(guildid))
 
         return faqs

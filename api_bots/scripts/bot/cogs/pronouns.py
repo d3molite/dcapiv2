@@ -1,3 +1,4 @@
+from operator import add
 import discord, django, re
 
 from discord.ext import commands, tasks
@@ -21,21 +22,8 @@ class COG_Pronouns(commands.Cog):
         print("LOADED COG PRONOUN ON " + self.name)
         print("------------------")
 
-    # method to generate the pronoun embed
-    @commands.command(name="pronoun")
-    async def pronoun(self, ctx):
-
-        channel = ctx.message.channel
-
-        # delete the last 5 messages
-        async for message in ctx.message.channel.history(limit=5):
-            await message.delete()
-
-        # wrap the get role objects function into sync to async
-        async_get_pronouns = sync_to_async(self.get_pronoun_list, thread_sensitive=True)
-
-        # get all the pronouns
-        pronouns = await async_get_pronouns(guildid=ctx.message.guild.id)
+    # method to generate an embed
+    def generate_pronouns(self, pronouns):
 
         # generate a new embed
         embed = discord.Embed()
@@ -45,6 +33,12 @@ class COG_Pronouns(commands.Cog):
         embed.add_field(
             name="Add your Pronouns",
             value="React to this message with the emoji listed below to assign your pronouns!",
+            inline=False,
+        )
+
+        embed.add_field(
+            name="Need more than one?",
+            value="You can select up to two pronoun roles at this moment.",
             inline=False,
         )
 
@@ -60,7 +54,27 @@ class COG_Pronouns(commands.Cog):
             inline=False,
         )
 
-        message = await ctx.message.channel.send("", embed=embed)
+        return embed
+
+    # method to generate the pronoun embed
+    @commands.command(name="pronoun")
+    async def pronoun(self, ctx):
+
+        if ctx.message.author.id != 137114422626877440:
+            return
+
+        # delete the last 5 messages
+        async for message in ctx.message.channel.history(limit=5):
+            await message.delete()
+
+        # wrap the get role objects function into sync to async
+        async_get_pronouns = sync_to_async(self.get_pronoun_list, thread_sensitive=True)
+
+        # get all the pronouns
+        pronouns = await async_get_pronouns(guildid=ctx.message.guild.id)
+
+        # send the message
+        message = await ctx.message.channel.send("", embed=self.generate_pronouns())
 
         pronounmessage = None
 
@@ -88,11 +102,61 @@ class COG_Pronouns(commands.Cog):
 
         await async_update_message(ctx.message.guild.id, message.id, pronounmessage)
 
+    # method to update the pronoun embed
+    @commands.command(name="updatepronoun")
+    async def updatepronoun(self, ctx):
+
+        if ctx.message.author.id != 137114422626877440:
+            return
+
+        # get the server object
+        server = ctx.guild
+
+        # get the channel
+        channel = ctx.channel
+
+        # wrap the get role objects function into sync to async
+        async_get_pronouns = sync_to_async(self.get_pronoun_list, thread_sensitive=True)
+
+        # get all the pronouns
+        pronouns = await async_get_pronouns(guildid=server.id)
+
+        message = None
+
+        # get the message object
+        for pronoun in pronouns:
+            if str(server.id) == str(pronoun.server.serverid):
+
+                message = await channel.fetch_message(id=int(pronoun.message.messageid))
+
+        if message != None:
+
+            embed = self.generate_pronouns(pronouns)
+
+            await message.edit(content="_ _", embed=embed)
+
+            # add the reactions
+            for pronoun in pronouns:
+
+                # fetch the emoji from the server if necessary
+                if (len(pronoun.emoji.emoji)) > 2:
+                    server = self.bot.get_guild(id=int(pronoun.server))
+                    emoji = discord.utils.get(server.emojis, name=pronoun.emoji.emoji)
+
+                else:
+                    emoji = pronoun.emoji.emoji
+
+                await message.add_reaction(emoji)
+
+            await message.add_reaction("✅")
+
+        await ctx.message.delete()
+
+        pass
+
     # function that is called when a reaction is added
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-
-        print(payload)
 
         # exclude the bot
         if payload.user_id == self.bot.user.id:
@@ -101,35 +165,30 @@ class COG_Pronouns(commands.Cog):
         # get the server object
         server = self.bot.get_guild(int(payload.guild_id))
 
-        print(server)
-
         # get the user object
         user = discord.utils.get(server.members, id=int(payload.user_id))
 
-        print(user)
-
-        # check if the user is already in a role
-        role, pronoun = await self.check_user_for_role(
-            payload.guild_id, payload.user_id
-        )
-
-        print(role, pronoun)
-
-        # check if the user has only clicked the checkmark
-        if payload.emoji.name == "✅":
-            if role != None and pronoun != None:
-                await self.update_username(user, pronoun, "add")
-                return
-
-        if role != None and pronoun != None:
-            print("User " + str(user) + " already has a pronoun!")
-            return
+        # get the channel
+        channel = discord.utils.get(server.text_channels, id=int(payload.channel_id))
 
         # wrap the get role objects function into sync to async
         async_get_pronouns = sync_to_async(self.get_pronoun_list, thread_sensitive=True)
 
         # get a dict of all roles
         pronouns = await async_get_pronouns(payload.guild_id)
+
+        # check if the user is already in a role
+        userobjects = await self.check_user_for_role(payload.guild_id, payload.user_id)
+
+        # check if the user has only clicked the checkmark
+        if payload.emoji.name == "✅":
+            if len(userobjects) > 0:
+                await self.update_username(user, server, dir="add")
+                return
+
+        if len(userobjects) > 1:
+            print("User " + str(user) + " already has two pronouns!")
+            return
 
         # iterate through all the roles and find the matching one with the following statement
         for pronoun in pronouns:
@@ -154,8 +213,8 @@ class COG_Pronouns(commands.Cog):
 
                 haschecked = await self.check_for_check(payload, server, user)
 
-                if haschecked:
-                    await self.update_username(user, pronoun, "add")
+                await self.update_username(user, server, haschecked)
+                return
 
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
@@ -172,7 +231,8 @@ class COG_Pronouns(commands.Cog):
 
         # check if the user has only clicked the checkmark
         if payload.emoji.name == "✅":
-            await self.update_username(user, None, "remove")
+            await self.update_username(user, server, dir="remove")
+            return
 
         # wrap the get role objects function into sync to async
         async_get_pronouns = sync_to_async(self.get_pronoun_list, thread_sensitive=True)
@@ -204,7 +264,9 @@ class COG_Pronouns(commands.Cog):
                         "User " + str(user) + " does not have role: " + str(role) + "!"
                     )
 
-                await self.update_username(user, None, "remove")
+                haschecked = await self.check_for_check(payload, server, user)
+
+                await self.update_username(user, server, haschecked)
 
     async def check_for_check(self, payload, server, user):
 
@@ -237,32 +299,69 @@ class COG_Pronouns(commands.Cog):
         # get all the pronouns
         pronouns = await async_get_pronouns(guildid=guildid)
 
+        objects = []
+
         for pronoun in pronouns:
+
+            userobj = {}
 
             role = discord.utils.get(server.roles, id=int(pronoun.role.roleid))
 
             if user in role.members:
 
-                return role, pronoun
+                userobj["role"] = role
+                userobj["pronoun"] = pronoun
+                objects.append(userobj)
 
-        return None, None
+        return objects
 
-    async def update_username(self, user, pronoun, dir):
+    async def update_username(self, user, guild, haschecked=None, dir=None):
 
+        # check if the user is already in a role
+        userobjects = await self.check_user_for_role(guild.id, user.id)
+
+        # first check the direction
+        if dir == None:
+            if len(userobjects) > 0:
+                dir = "add"
+
+            else:
+                dir = "remove"
+
+        if haschecked != None:
+            if haschecked == False:
+                dir = "remove"
+            else:
+                dir = "add"
+
+        # if the user doesn't have a custom nick assigned
         if user.nick == None:
             uname = user.name
             flag = False
+
+        # if the user has a custom nick assigned, get the nick without any potential brackets
         else:
-            uname = user.nick
+            uname = re.sub(r"\s+\[.+\]", "", user.nick)
             flag = True
 
+        # if the direction is add
         if dir == "add":
-            newnick = uname + " [" + str(pronoun.pronoun) + "]"
+
+            if len(userobjects) == 1:
+                newnick = uname + " [" + str(userobjects[0]["pronoun"].pronoun) + "]"
+
+            elif len(userobjects) == 2:
+                newnick = uname + " ["
+                newnick += userobjects[0]["pronoun"].pronoun.split("/")[0] + "/"
+                newnick += userobjects[1]["pronoun"].pronoun.split("/")[0]
+
+                newnick += "]"
+
             await user.edit(nick=newnick)
             return
 
         if dir == "remove":
-            newnick = re.sub(r"\[.+\]", "", uname)
+            newnick = re.sub(r"\s+\[.+\]", "", uname)
             if flag:
                 await user.edit(nick=newnick)
             else:

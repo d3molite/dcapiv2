@@ -1,0 +1,29 @@
+invalid:
+  de: |
+    Hallo USER, vielen Dank für deine Anmeldung.
+    Dein Ticket ist leider ungültig.
+    Bitte überprüfe den eingegebenen Code und versuche es erneut.
+  en: |
+    Hello USER, thank you for your registration.
+    Your ticket code is invalid.
+    Please check the code you have entered and try again.
+
+used:
+  de: |
+    Hallo USER, vielen Dank für deine Anmeldung.
+    Dein Ticket ist leider bereits verwendet worden.
+    Bitte überprüfe den eingegebenen Code und versuche es erneut.
+  en: |
+    Hello USER, thank you for your registration.
+    Your ticket code has already been used.
+    Please check the code you have entered and try again.
+
+success:
+  de: |
+    Hallo USER, vielen Dank für deine Anmeldung.
+    Deine Anmeldung war erfolgreich, dir wurden folgende Rollen zugewiesen - ROLES
+    Willkommen zum DCW
+  en: |
+    Hello USER, thank you for your registration.
+    The activation of your ticket was successful, you have been assigned the following roles - ROLES
+    Welcome to DCW
