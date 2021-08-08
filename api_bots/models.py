@@ -121,7 +121,7 @@ class Channel(models.Model):
     channelid = models.CharField(help_text="Channel ID", max_length=100)
 
     # server
-    server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True    )
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.server.name + " - " + self.name
@@ -133,6 +133,7 @@ class Channel(models.Model):
 
     def _post_save(self):
         self.reload()
+
 
 # model that houses all channel settings for specific servers
 class Category(models.Model):
@@ -156,6 +157,7 @@ class Category(models.Model):
 
     def _post_save(self):
         self.reload()
+
 
 # model that houses all message settings for specific servers
 class Message(models.Model):
@@ -193,9 +195,7 @@ class Emoji(models.Model):
     )
 
     # server
-    server = models.ForeignKey(
-        Server, on_delete=models.CASCADE, null=True
-    )
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
@@ -228,9 +228,7 @@ class FAQ(models.Model):
     )
 
     # server field
-    server = models.ForeignKey(
-        Server, on_delete=models.CASCADE, null=True
-    )
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True)
 
     # checkmark to see if the model is active
     active = models.BooleanField(default=True)
@@ -290,7 +288,7 @@ class Role(models.Model):
 
 # class that matches roles to their assignment
 class RoleAssigner(models.Model):
-    
+
     # server field
     server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True)
 
@@ -310,6 +308,7 @@ class RoleAssigner(models.Model):
 
         return str(self.role.name)
 
+
 # class that allows the bot to react to a specific message with an emoji
 class MessageReaction(models.Model):
 
@@ -320,7 +319,7 @@ class MessageReaction(models.Model):
     server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True)
 
     # emoji name
-    emoji_id = models.ForeignKey(Emoji, on_delete=models.CASCADE, null=True)
+    emoji = models.ForeignKey(Emoji, on_delete=models.CASCADE, null=True)
 
     # reaction chance
     reaction_chance = models.IntegerField(default=0)
@@ -363,3 +362,44 @@ class Pronoun(models.Model):
 
     def _post_save(self):
         self.reload()
+
+
+class Admin(models.Model):
+
+    # name
+    name = models.CharField(max_length=100)
+
+    # user id
+    userid = models.CharField(max_length=100)
+
+    # server field
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+
+        return str(self.name)
+
+
+class Ticket(models.Model):
+
+    # name
+    name = models.CharField(max_length=100)
+
+    # endpoint
+    endpoint = models.CharField(max_length=400)
+
+    # api token
+    token = models.CharField(max_length=200)
+
+    # requestchannel
+    channel = models.ForeignKey(
+        Channel, related_name="reqchannel", on_delete=models.CASCADE, null=True
+    )
+
+    # requestchannel
+    logging = models.ForeignKey(
+        Channel, related_name="logchannel", on_delete=models.CASCADE, null=True
+    )
+
+    def __str__(self):
+        return self.name

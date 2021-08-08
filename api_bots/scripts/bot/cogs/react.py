@@ -28,10 +28,10 @@ class COG_React(commands.Cog):
             return
 
         # wrap the get message objects function into sync to async
-        async_get_roles = sync_to_async(self.get_message_list, thread_sensitive=True)
+        async_get_reacts = sync_to_async(self.get_message_list, thread_sensitive=True)
 
         # get a list of all messages
-        messageobj = await async_get_roles(message.guild.id)
+        messageobj = await async_get_reacts(message.guild.id)
 
         # iterate over messages
         for msgo in messageobj:
@@ -47,12 +47,12 @@ class COG_React(commands.Cog):
                 if rnd < int(msgo.reaction_chance):
 
                     # fetch the emoji from the server if necessary
-                    if (len(msgo.emoji_id)) > 2:
-                        server = self.bot.get_guild(id=int(msgo.server))
-                        emoji = discord.utils.get(server.emojis, name=msgo.emoji_id)
+                    if (len(msgo.emoji.emoji)) > 2:
+                        server = self.bot.get_guild(id=int(msgo.server.serverid))
+                        emoji = discord.utils.get(server.emojis, name=msgo.emoji.emoji)
 
                     else:
-                        emoji = msgo.emoji_id
+                        emoji = msgo.emoji.emoji
 
                     await message.add_reaction(emoji)
 
@@ -60,11 +60,17 @@ class COG_React(commands.Cog):
 
         pass
 
+    @commands.command(name="spende")
+    async def spende(self, ctx):
+        pass
+
     def get_message_list(self, guildid=None):
         objects = []
 
         for messageObj in self.get_message_objects(guildid=guildid):
             objects.append(messageObj)
+            _ = messageObj.emoji
+            _ = messageObj.server
 
         return objects
 
@@ -74,6 +80,26 @@ class COG_React(commands.Cog):
             roles = MessageReaction.objects.all()
 
         else:
-            roles = MessageReaction.objects.filter(server=str(guildid))
+            roles = MessageReaction.objects.filter(server__serverid=str(guildid))
+
+        return roles
+
+    def get_admin_list(self, guildid=None):
+        objects = []
+
+        for messageObj in self.get_message_objects(guildid=guildid):
+            objects.append(messageObj)
+            _ = messageObj.emoji
+            _ = messageObj.server
+
+        return objects
+
+    def get_message_objects(self, guildid=None):
+
+        if guildid == None:
+            roles = MessageReaction.objects.all()
+
+        else:
+            roles = MessageReaction.objects.filter(server__serverid=str(guildid))
 
         return roles
