@@ -1,5 +1,8 @@
-import discord
+import discord, django
+from asgiref.sync import sync_to_async
 from discord.ext import commands, tasks
+
+django.setup()
 
 class COG(commands.Cog):
     def __init__(self, cog_name, bot_name, bot, embed_color, prefixes=None):
@@ -40,4 +43,49 @@ class COG(commands.Cog):
 
         except:
             print("Bot " + self.bot_name + " failed to fetch user of id: " + str(channel_id) + " from guild: " + str(guild))
+
+
+    async def get_objects(self, model: django.db.models.Model, filter: dict) -> list:
+        """ asynchronous function to return model objects from a provided model """
+        async_getter = sync_to_async(self.get_model_objects, thread_sensitive=True)
+        lst = await async_getter(model, filter)
+        return lst
+
+
+    def generate_embed(self):
+        """generates an embed """
+        embed = discord.Embed(color=self.embed_color)
+
+        embed.set_footer(self.bot_name + " by Demolite ®")
+
+    def add_field(self, embed, title, text, inline=False):
+        """adds a field to an embed"""
+        embed.add_field(name=title, value=text, inline=inline)
+
+        return embed
+
+    def get_model_objects(self, model:django.db.models.Model, filter:dict=None) -> list:
+        """ return model objects from a provided model, iterate over the models and add them to a list"""
+
+        prefetch = []
+        for field in model._meta.get_fields():
+            if field.many_to_one:
+                prefetch.append(field.name)
+
+        if filter != None:
+            objects = model.objects.select_related(*prefetch).filter(**filter)
+
+        else:
+            objects = model.objects.prefetch_related(*prefetch).all()
+
+        ret = []
+
+        for obj in objects:
+            ret.append(obj)
+
+        return ret
+
+
+
+        
 

@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from .cog import COG
+from ....models.antispam import AntiSpam
 
 class anti_spam(COG):
     def __init__(self, name, bot, embed_color, prefixes=None):
@@ -41,7 +42,13 @@ class anti_spam(COG):
             if len(spam) >= 3:
                 for identified_spam in spam:
                     await identified_spam.delete()
-                    self.spam_list.remove(identified_spam)
+                    try:
+                        self.spam_list.remove(identified_spam)
+                    except:
+                        pass
+
+                # remove all roles from the user and add them to the muted role if specified
+                objects = await self.get_objects(model=AntiSpam, filter={"server__serverid": str(message.guild.id)})
 
                 return
 
@@ -51,6 +58,7 @@ class anti_spam(COG):
                     self.spam_list.pop(0)
 
                 self.spam_list.append(message)
+
 
             
 
