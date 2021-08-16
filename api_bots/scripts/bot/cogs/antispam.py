@@ -8,7 +8,7 @@ class anti_spam(COG):
         COG.__init__(self, cog_name="anti_spam", bot_name=name, bot=bot, embed_color=embed_color, prefixes=None)
     
         self.spam_list = []
-        self.max_messages = 10
+        self.max_messages = 20
 
 
     @commands.Cog.listener()
@@ -23,6 +23,15 @@ class anti_spam(COG):
 
         else:
 
+            if len(self.spam_list) >= self.max_messages:
+                self.spam_list.pop(0)
+
+            self.spam_list.append(message)
+
+            print("Messages in Spam List: " + str(len(self.spam_list)))
+            for msg in self.spam_list:
+                print(msg.content + " " + msg.author.name)
+
             # check if the message is already in the spam list and if yes, how often
             spam = []
 
@@ -32,32 +41,50 @@ class anti_spam(COG):
 
                     spam.append(potential_spam)
 
-            spam.append(message)
-
             print("Messages in Spam Checker: " + str(len(spam)))
             for msg in spam:
                 print(msg.content + " " + msg.author.name)
 
-            # if the message is in the spam list more than two times, prune it
+            # if the message is in the spam list more than two times, prune it, all other messages and the user in question
             if len(spam) >= 3:
-                for identified_spam in spam:
-                    await identified_spam.delete()
-                    try:
-                        self.spam_list.remove(identified_spam)
-                    except:
-                        pass
+
+                toPrune = []
 
                 # remove all roles from the user and add them to the muted role if specified
                 objects = await self.get_objects(model=AntiSpam, filter={"server__serverid": str(message.guild.id)})
 
+                for object in objects:
+                    if object.server.serverid == str(message.guild.id):
+
+                        # remove the user from all roles
+                        for role in message.author.roles:
+                            try:
+                                await message.author.remove_roles(role, reason="AntiSpam detection.")
+                            except:
+                                print("Could not remove " + str(role) + " from user " + str(message.author))
+
+                        # get the muted role
+                        muted_role = self.get_role(guild=message.guild, role_id = int(object.mute.roleid))
+
+                        # add the muted role to the user
+                        if muted_role != None:
+                            await message.author.add_roles(muted_role, reason="AntiSpam detection.")
+
+                # iterate over the spam list
+                for msg in self.spam_list:
+
+                    # if the message author of the message is equal
+                    if msg.author == message.author:
+
+                        # delete the message
+                        await msg.delete()
+                        toPrune.append(msg)
+
+                for msg in toPrune:
+                    self.spam_list.remove(msg)
+
                 return
-
-            # check if the list contains more than 5 elements
-            else:
-                if len(self.spam_list) >= self.max_messages:
-                    self.spam_list.pop(0)
-
-                self.spam_list.append(message)
+                
 
 
             

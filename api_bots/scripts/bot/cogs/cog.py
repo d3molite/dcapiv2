@@ -27,22 +27,30 @@ class COG(commands.Cog):
             print("Bot " + self.bot_name + " failed to fetch guild of id: " + str(guild_id))
             return None
 
-    async def get_channel(self, guild: discord.Guild, channel_id: int):
+    def get_channel(self, guild: discord.Guild, channel_id: int):
         """uses the bot instance to return a channel object from a guild"""
         try:
-            return await discord.utils.get(guild.channel, id=channel_id) 
+            return discord.utils.get(guild.channel, id=channel_id) 
 
         except:
             print("Bot " + self.bot_name + " failed to fetch channel of id: " + str(channel_id) + " from guild: " + str(guild))
             return None
 
-    async def get_user(self, guild: discord.Guild, user_id: int) -> discord.User:
+    def get_user(self, guild: discord.Guild, user_id: int) -> discord.User:
         """uses the bot instance to retrieve a user"""
         try: 
-            return await discord.utils.get(self.bot.get_all_members(), id=user_id)
+            return discord.utils.get(self.bot.get_all_members(), id=user_id)
 
         except:
-            print("Bot " + self.bot_name + " failed to fetch user of id: " + str(channel_id) + " from guild: " + str(guild))
+            print("Bot " + self.bot_name + " failed to fetch user of id: " + str(user_id) + " from guild: " + str(guild))
+
+    def get_role(self, guild: discord.Guild, role_id: int) -> discord.Role:
+        """uses the bot instance to retrieve a user"""
+        try: 
+            return discord.utils.get(guild.roles, id=role_id)
+
+        except:
+            print("Bot " + self.bot_name + " failed to fetch role of id: " + str(role_id) + " from guild: " + str(guild))
 
 
     async def get_objects(self, model: django.db.models.Model, filter: dict) -> list:
