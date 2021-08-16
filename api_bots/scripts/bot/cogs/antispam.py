@@ -42,6 +42,7 @@ class anti_spam(COG):
                 for identified_spam in spam:
                     await identified_spam.delete()
                     self.spam_list.remove(identified_spam)
+
                 return
 
             # check if the list contains more than 5 elements
