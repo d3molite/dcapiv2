@@ -3,7 +3,7 @@ import discord, asyncio
 from discord.ext import commands, tasks
 
 # pylint: disable=relative-beyond-top-level
-from .cogs import faq, help, feedback, role, react, pronouns, voicechannel, ticket
+from .cogs import faq, help, feedback, role, react, pronouns, voicechannel, ticket, antispam
 
 # main class that the discord bots runs on
 class Bot:
@@ -115,6 +115,13 @@ class Bot:
 
                 self.bot.add_cog(
                     ticket.COG_Ticket(
+                        bot=self.bot, name=self.name, embed_color=self.embed_color
+                    )
+                )
+
+            if cog == "antispam":
+                self.bot.add_cog(
+                    antispam.anti_spam(
                         bot=self.bot, name=self.name, embed_color=self.embed_color
                     )
                 )
