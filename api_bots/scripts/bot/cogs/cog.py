@@ -30,7 +30,7 @@ class COG(commands.Cog):
     def get_channel(self, guild: discord.Guild, channel_id: int):
         """uses the bot instance to return a channel object from a guild"""
         try:
-            return discord.utils.get(guild.channel, id=channel_id) 
+            return discord.utils.get(guild.channels, id=channel_id) 
 
         except:
             print("Bot " + self.bot_name + " failed to fetch channel of id: " + str(channel_id) + " from guild: " + str(guild))
@@ -53,18 +53,19 @@ class COG(commands.Cog):
             print("Bot " + self.bot_name + " failed to fetch role of id: " + str(role_id) + " from guild: " + str(guild))
 
 
-    async def get_objects(self, model: django.db.models.Model, filter: dict) -> list:
+    async def get_objects(self, model: django.db.models.Model, filter: dict=None, get:dict=None) -> list:
         """ asynchronous function to return model objects from a provided model """
         async_getter = sync_to_async(self.get_model_objects, thread_sensitive=True)
-        lst = await async_getter(model, filter)
+        lst = await async_getter(model, filter=filter, get=get)
         return lst
 
 
     def generate_embed(self):
         """generates an embed """
         embed = discord.Embed(color=self.embed_color)
+        embed.set_footer(text=self.bot_name + " by Demolite ®")
 
-        embed.set_footer(self.bot_name + " by Demolite ®")
+        return embed
 
     def add_field(self, embed, title, text, inline=False):
         """adds a field to an embed"""
@@ -72,9 +73,10 @@ class COG(commands.Cog):
 
         return embed
 
-    def get_model_objects(self, model:django.db.models.Model, filter:dict=None) -> list:
+    def get_model_objects(self, model:django.db.models.Model, filter:dict=None, get:dict=None) -> list:
         """ return model objects from a provided model, iterate over the models and add them to a list"""
 
+        ret = []
         prefetch = []
         for field in model._meta.get_fields():
             if field.many_to_one:
@@ -82,14 +84,17 @@ class COG(commands.Cog):
 
         if filter != None:
             objects = model.objects.select_related(*prefetch).filter(**filter)
+            for obj in objects:
+                ret.append(obj)
+
+        elif get != None:
+            object = model.objects.select_related(*prefetch).get(**get)
+            ret = object
 
         else:
             objects = model.objects.prefetch_related(*prefetch).all()
-
-        ret = []
-
-        for obj in objects:
-            ret.append(obj)
+            for obj in objects:
+                ret.append(obj)
 
         return ret
 

@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from .cog import COG
 from ....models.antispam import AntiSpam
+from ....models.models import Server
 
 class anti_spam(COG):
     def __init__(self, name, bot, embed_color, prefixes=None):
@@ -82,6 +83,15 @@ class anti_spam(COG):
 
                 for msg in toPrune:
                     self.spam_list.remove(msg)
+
+                sv = await self.get_objects(model=Server, get={"serverid": str(message.guild.id)})
+                channel = self.get_channel(guild=message.guild, channel_id = int(sv.mod_channel))
+
+                embed = self.generate_embed()
+                msg = "Muted " + str(message.author) + " for spamming."
+                embed = self.add_field(embed, "AntiSpam detection.", msg)
+
+                await channel.send(" ", embed=embed)
 
                 return
                 
