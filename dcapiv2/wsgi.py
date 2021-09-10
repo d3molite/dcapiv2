@@ -7,6 +7,7 @@ For more information on this file, see
 https://docs.djangoproject.com/en/3.1/howto/deployment/wsgi/
 """
 
+from api_bots.models.models import Role
 import os, django, sys
 
 from django.core.wsgi import get_wsgi_application
@@ -24,8 +25,23 @@ while not settings.READY:
 
 # DISCORD BOT STARTUP SEQUENCE
 # Import all necessary items
-from api_bots.models import Bot
+from api_bots.models import BotInstance
+from api_bots.models import RoleAssigner
 from api_bots.scripts.multiprocessor import processor
+
+
+def get_cogs(bot):
+    """Method to get all cogs assigned to a specific bot"""
+
+    cogs = []
+
+    ra = RoleAssigner.objects.filter(bot=bot)
+
+    if len(ra) > 0:
+        cogs.append(ra[0])
+
+    return cogs
+
 
 # create a dictionary which holds all bot objects and can be accessed by the underlying integrations
 bots = {}
@@ -34,24 +50,19 @@ bots = {}
 if "runserver" in sys.argv:
 
     # iterate through all bot objects upon startup and launch those that have active marked
-    for bot in Bot.objects.all():
+    for bot in BotInstance.objects.all():
 
+        # if the bot is supposed to start with the application
         if bot.active:
 
-            # try to split the prefixes
-            try:
-                prefixes = bot.prefix.split(",")
-            except:
-                prefixes = [bot.prefix]
-
-            # create a new bot instance with the bot name
+            # create a new bot instance
             bots[bot.name] = processor.Bot_Process(
                 name=bot.name,
                 token=bot.token,
-                cogs=bot.cogs,
-                prefixes=prefixes,
+                prefix=bot.prefix,
                 presence=bot.presence,
                 embed_color=bot.embed_color,
+                cogs=get_cogs(bot),
             )
 
             bots[bot.name].start()

@@ -1,92 +1,101 @@
+from django.db.models.fields import NullBooleanField
+from api_bots.models.cogs.role_assigner import RoleAssigner
+from api_bots.models import DiscordRole
 from django.shortcuts import render, HttpResponse
-import sys
+import sys, json
 
 # pylint: disable=relative-beyond-top-level
 # pylint: disable=no-member
 
 # import the bot dictionary
-from dcapiv2.wsgi import bots
-from api_bots.models import Server, Bot, FAQ
+from dcapiv2.wsgi import bots as BotProcesses
+from api_bots.models import Server, BotInstance, FAQ
 from api_bots.scripts.bot.cogs import descriptions as cog_desc
 
 # Create your views here.
 
 # this is the main view that shows the general bots
 def home(request):
+    """main view showing all bots"""
 
-    data = {"bots": get_bots_info(), "name": "test"}
+    data = {"bots": BotInstance.get_vue_data(bot_processes=BotProcesses)}
 
     return render(request, "api_gui/overview.html", data)
 
 
-# overview for the bot
-# shows servers
-def bot(request, bot_shorthand):
+def admin_panel(request):
+    """admin panel view showing bots for specific users"""
 
-    # get the bot by the slug expression
-    name = Bot.objects.get(shorthand=str(bot_shorthand)).name
+    data = {"bots": get_bots_admin(request.user.username)}
+    print(data)
 
-    # get a list of all servers the bot is active
-    # filter where the active bot name matches the shorthand
-    # provided as the slug
-
-    servers = Server.objects.filter(active_bot=(name))
-
-    data = {"servers": servers, "name": name, "bot_shorthand": bot_shorthand}
-
-    return render(request, "api_gui/bot.html", data)
+    return render(request, "api_gui/admin_panel.html", data)
 
 
-# overview for the server
-# shows cogs
-def server(request, bot_shorthand, server_shorthand):
+def edit_cog(request, bot, cog):
 
-    # get the server by the slug expression
-    name = Server.objects.get(shorthand=str(server_shorthand)).name
+    # get the bot instance
+    bot_instance = BotInstance.objects.get(name=bot)
+    Admins = bot_instance.admins.all()
 
-    # get a list of all active cogs and link them
-    cogs = get_cogs(shorthand=bot_shorthand)
+    if request.user in Admins:
 
-    data = {
-        "cogs": cogs,
-        "name": name,
-        "slug1": bot_shorthand,
-        "slug2": server_shorthand,
-    }
+        data = {"cog": get_cog(cog, bot_instance)}
 
-    return render(request, "api_gui/server.html", data)
+        return render(request, "api_gui/edit_cog.html", data)
+
+    else:
+        return HttpResponse("UNAUTHORIZE")
 
 
-# overview for the cog
-# shows data
-def cog(request, bot_shorthand, server_shorthand, cog_shorthand):
+def get_bots_admin(username):
 
-    # get the data entries for the cog
-    fields, dt, url = get_data(cog_shorthand)
+    bot_admin = []
 
-    print(dt)
+    botInstances = BotInstance.objects.filter(admins__username=username)
 
-    data = {"data": dt, "fields": fields, "name": cog_desc.getDesc(cog_shorthand)}
-
-    return render(request, url, data)
-
-
-# function to get info about bots
-def get_bots_info():
-
-    bot_info = []
-
-    for key, bot in bots.items():
+    for bot in botInstances:
 
         bot_dict = {}
 
-        bot_dict["name"] = key
-        bot_dict["shorthand"] = Bot.objects.get(name=key).shorthand
-        bot_dict["logged_in"] = bot.get_status()
+        bot_dict["name"] = bot.name
+        bot_dict["server"] = bot.server.name
+        bot_dict["cogs"] = []
+        for cog in BotProcesses[bot.name].cogs:
+            bot_dict["cogs"].append(cog._meta.model.__name__)
 
-        bot_info.append(bot_dict)
+        bot_admin.append(bot_dict)
 
-    return bot_info
+    return bot_admin
+
+
+# method that updates cogs from a post request
+def update_cog(request, bot, cog):
+
+    if request.method == "POST":
+
+        data = json.loads(request.body)
+
+        if cog == "RoleAssigner":
+            RoleAssigner.update_vue_data(bot_name=bot, vue_data=data["data"])
+
+        return HttpResponse(status=200)
+
+
+def get_cog(cog, bot_instance):
+
+    cog_instance = None
+
+    vue_data = {}
+
+    vue_data["name"] = cog
+
+    if cog == "RoleAssigner":
+        cog_instance = RoleAssigner.objects.get(bot=bot_instance)
+        vue_data["template"] = RoleAssigner.get_vue_template()
+        vue_data["data"] = RoleAssigner.get_vue_data(cog_instance)
+
+    return vue_data
 
 
 # function to return a list of cogs that are also active as data items

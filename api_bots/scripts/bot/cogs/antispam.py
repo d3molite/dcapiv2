@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from .cog import COG
 from ....models.antispam import AntiSpam
 from ....models.models import Server
@@ -10,7 +10,12 @@ class anti_spam(COG):
     
         self.spam_list = []
         self.max_messages = 20
+        self.spam_threshold = 3
+        self.spam_reset.start()
 
+    @tasks.loop(hours=12)
+    async def spam_reset(self):
+        self.spam_list = []
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -20,6 +25,9 @@ class anti_spam(COG):
             return
 
         if message.author.bot:
+            return
+
+        if len(message.content) < 1:
             return
 
         else:
@@ -46,8 +54,8 @@ class anti_spam(COG):
             for msg in spam:
                 print(msg.content + " " + msg.author.name)
 
-            # if the message is in the spam list more than two times, prune it, all other messages and the user in question
-            if len(spam) >= 3:
+            # if the message is in the spam list more the threshold allows, prune it, all other messages and the user in question
+            if len(spam) >= self.spam_threshold:
 
                 toPrune = []
 

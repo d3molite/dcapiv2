@@ -1,0 +1,43 @@
+{% extends "api_gui/base.html" %}
+{% load static %}
+{% block content %}
+{{ bots|json_script:"botsData"}}
+
+<div class="flex-col h100">
+    <div>
+        <div class=margin>
+            Welcome to the admin panel {{ user }} - click any cog on any bot to edit the config.
+        </div>
+    </div>
+    <div class="content-heading">
+        <div class="margin">
+            Manageable Bots
+        </div>
+    </div>
+    <div class="flex-expand el1 flat">
+        <div class="margin h100 flex-column" id="app">
+            <transition-group name="fade" appear>
+                <div v-for="bot in bots" :key="bot" class="flat el1 flex-column">
+                    <div class=padding>
+                        <div class="underlined margin-bottom">
+                            [[ bot.name ]] - [[ bot.server ]]
+                        </div>
+                        <div class="margin-bottom border-bottom">
+                            Editable Cogs:
+                        </div>
+                        <div v-for="cog in bot.cogs" class="flex-column flat el1">
+                            <a :href="'admin_panel' + '/' + bot.name + '/' + cog">
+                                <div class="padding flat-button">
+                                    [[ cog ]]
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </transition-group>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'api_gui/admin_panel.js' %}"></script>
+{% endblock content %}

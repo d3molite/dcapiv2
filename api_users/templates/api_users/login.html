@@ -1,0 +1,15 @@
+{% extends "api_gui/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block content %}
+<div>
+    <form method="post">
+        {% csrf_token %}
+        <fieldset class="form-group">
+            {{ form|crispy }}
+        </fieldset>
+        <button type="submit">Log In</button>
+    </form>
+</div>
+{% endblock content %}

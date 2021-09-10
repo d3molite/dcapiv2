@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "api_bots.apps.ApiBotsConfig",
     "api_gui.apps.ApiGuiConfig",
     "api_users.apps.ApiUsersConfig",
+    "crispy_forms",
     "django.contrib.postgres",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -49,7 +50,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -135,4 +136,7 @@ MEDIA_URL = "/media/"
 # ready flag
 READY = False
 
-DEFAULT_AUTO_FIELD='django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+LOGIN_REDIRECT_URL = "/"
+LOGIN_URL = "/login"

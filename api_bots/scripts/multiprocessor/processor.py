@@ -34,7 +34,7 @@ def new_manager():
 
 class Bot_Process:
     def __init__(
-        self, name, token, cogs=None, prefixes=None, presence=None, embed_color=None
+        self, name, token, cogs=None, prefix=None, presence=None, embed_color=None
     ):
 
         # the bot object from the bot_master import
@@ -53,10 +53,10 @@ class Bot_Process:
         self.token = token
 
         # cog string, split at this point to get a list of all cogs to be loaded (lowercase!)
-        self.cogs = cogs.lower().split(",")
+        self.cogs = cogs
 
         # prefix to be used for the bot
-        self.prefixes = prefixes
+        self.prefix = prefix
 
         # presence string to be displayed by the bot upon starting, taken from the model
         self.presence = presence
@@ -73,8 +73,8 @@ class Bot_Process:
         self.bot = self.manager.dcbot(
             name=self.name,
             token=self.token,
-            cogs=self.cogs,
-            prefixes=self.prefixes,
+            cogs=None,
+            prefix=self.prefix,
             presence=self.presence,
             embed_color=self.embed_color,
         )

@@ -9,6 +9,13 @@ class EmojiAdmin(admin.ModelAdmin):
     list_display = ("name", "emoji")
 
 
+admin.site.register(BotInstance)
+admin.site.register(DiscordServer)
+admin.site.register(DiscordChannel)
+admin.site.register(DiscordMessage)
+admin.site.register(DiscordRole)
+admin.site.register(RoleAssigner)
+
 admin.site.register(Bot)
 admin.site.register(FAQ)
 admin.site.register(Server)
@@ -18,7 +25,7 @@ admin.site.register(Message)
 admin.site.register(Emoji, EmojiAdmin)
 admin.site.register(VoiceChannel)
 admin.site.register(Role)
-admin.site.register(RoleAssigner)
+# admin.site.register(RoleAssigner)
 admin.site.register(MessageReaction)
 admin.site.register(Pronoun)
 admin.site.register(Ticket)
