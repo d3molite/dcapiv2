@@ -2,10 +2,11 @@
   "ExpandedNodes": [
     "",
     "\\api_bots",
+    "\\api_bots\\models",
     "\\api_bots\\scripts",
     "\\api_bots\\scripts\\bot",
     "\\api_bots\\scripts\\bot\\cogs"
   ],
-  "SelectedNode": "\\api_bots\\scripts\\bot\\cogs\\voicechannel.py",
+  "SelectedNode": "\\api_bots\\scripts\\bot\\cogs\\antispam.py",
   "PreviewInSolutionExplorer": false
 }

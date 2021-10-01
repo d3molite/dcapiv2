@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, re_path
+from django.contrib.auth import views as auth_views
 
 from . import settings
 from django.conf.urls.static import static
@@ -23,6 +24,16 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("system/", include("api_bots.urls")),
     path("", include("api_gui.urls")),
+    path(
+        "login/",
+        auth_views.LoginView.as_view(template_name="api_users/login.html"),
+        name="login",
+    ),
+    path(
+        "logout/",
+        auth_views.LogoutView.as_view(template_name="api_users/logout.html"),
+        name="logout",
+    ),
 ]
 
 if settings.DEBUG:

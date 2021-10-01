@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models.fields import CharField
+from django.contrib.auth.models import User
 
 # from .scripts.bot import cogs as cogs
 
@@ -284,29 +284,6 @@ class Role(models.Model):
 
     def _post_save(self):
         self.reload()
-
-
-# class that matches roles to their assignment
-class RoleAssigner(models.Model):
-
-    # server field
-    server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True)
-
-    # role field
-    role = models.ForeignKey(Role, on_delete=models.CASCADE, null=True)
-
-    # message_id
-    message = models.ForeignKey(Message, on_delete=models.CASCADE, null=True)
-
-    # emoji
-    emoji = models.ForeignKey(Emoji, on_delete=models.CASCADE, null=True)
-
-    # main role?
-    role_ismain = models.BooleanField(default=False)
-
-    def __str__(self):
-
-        return str(self.role.name)
 
 
 # class that allows the bot to react to a specific message with an emoji

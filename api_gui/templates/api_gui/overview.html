@@ -2,29 +2,60 @@
 {% load static %}
 
 {% block content %}
-<div class="content-master">
+{{ bots|json_script:"botsData"}}
+<div class="flex-col h100">
     <div class="content-heading">
-        ACTIVE BOT SESSIONS
-    </div>
-    <div class="table-headings">
-        <div>
-            Bot Name
-        </div>
-        <div>
-            Host Status
+        <div class="margin">
+            ACTIVE BOTS
         </div>
     </div>
-    {% for bot in bots %}
-    <a href="/bot/{{ bot.shorthand }}">
-        <div class="bot-item">
-            <div>
-                {{ bot.name }}
+    <div class="border-bottom flat el1">
+        <div class="margin flex-row flex-space-between">
+            <div class="padding-lr">
+                Bot Name
             </div>
-            <div>
-                {{ bot.logged_in }}
+            <div class="padding-lr">
+                Server
+            </div>
+            <div class="padding-lr">
+                Bot Status
+            </div>
+        </div>
+    </div>
+    <div class="flex-expand el1 flat margin-bottom">
+        <div class="margin flex-col" id="app">
+            <transition-group name="fade" appear>
+                <div v-for="bot in bots" :key="bot" class="flat el1 margin-bottom">
+                    <div class="margin flex-row flex-space-between">
+                        <div class="w20">
+                            [[ bot.name ]]
+                        </div>
+                        <div class="w20">
+                            [[ bot.server ]]
+                        </div>
+                        <div v-if="bot.logged_in == 'Online'" class="status-ok">
+                            [[ bot.logged_in ]]
+                        </div>
+                        <div v-else class="status-error">
+                            [[ bot.logged_in ]]
+                        </div>
+                    </div>
+                </div>
+            </transition-group>
+        </div>
+    </div>
+    {% if user.is_authenticated %}
+    <a href="{% url 'gui-admin' %}">
+        <div class="el1 flat-button">
+            <div class="margin flex-row flex-center">
+                <div>
+                    EDIT
+                </div>
             </div>
         </div>
     </a>
-    {% endfor %}
+    {% endif %}
+
 </div>
+<script src="{% static 'api_gui/overview.js' %}"></script>
 {% endblock content %}

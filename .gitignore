@@ -4,3 +4,4 @@ db.sqlite3
 keys/keys.json
 */migrations
 */.vs
+/.vs

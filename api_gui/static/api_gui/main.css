@@ -1,126 +1,191 @@
+
 :root {
-	--dark-bg-color: rgb(47,49,54);
+	--main-bg-color: #E5E8E5;
+	--main-text-color: #191919;
+	--dark-bg-color: #a9aaa9;
+	--error-text-color: #F15025;
+	--ok-text-color: #0EA300;
 	--lighter-bg-color: rgb(54,57,63);
 	--navbar-height: 6rem;
-	--border-color: rgb(90,93,99);
+	--border-color: #191919;
 	--base-text: rgb(210,213,219);
 	--base-font: Roboto;
+}
+
+a, a:hover {
+	color: var(--main-text-color);
+	text-decoration: none;
 }
 
 html, body {
 	height: 100vh;
 	width: 100vw;
-	background: var(--dark-bg-color) !important;
-	color: var(--base-text);
+	background: var(--main-bg-color) !important;
+	color: var(--main-text-color);
 	font-family: var(--base-font)
 }
 
 main {
-	background: var(--lighter-bg-color);
+	background: var(--main-bg-color);
 	overflow: auto;
 	height: 100vh;
 	padding: 0 !important;
 }
 
-.navlogo{
-	font-size: 3rem;
-	font-weight: 1000;
-}
-
-.fill {
-	min-height: 100vh;
-	overflow: hidden;
-}
-
-.shift{
-	padding-top: var(--navbar-height);
-	height: 100vh;
-}
-
-.navbar{
-	padding: 0;
-}
-
-.navfill {
-	height: var(--navbar-height);
+.bottom-border{
 	border-bottom: 1px solid var(--border-color);
+	margin-bottom: 0.5rem;
 }
 
-.content-master {
-	padding: 1rem;
-	height: 100%;
-	display: flex;
-	flex-direction: column;
+.button:hover{
+	cursor:pointer;
 }
 
 .content-heading{
 	font-size: 1.5rem;
-	width: 100%;
-	padding-bottom: 1rem;
+	font-weight: 600;
 }
 
-.table-headings{
-	width: 100%;
-	padding: 1rem;
-	border-bottom: 1px solid var(--border-color);
-	margin-bottom: 1rem;
+.debug{
+	border: 1px solid red;
+}
+
+.el1 {
+	filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.2))
+}
+
+.el2 {
+	filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.2))
+}
+
+.el3 {
+	filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2))
+}
+
+.el4 {
+	filter: drop-shadow(0px 2px 5px rgba(0,0,0,0.2))
+}
+
+.fade-move{
+	transition: 0.3s ease;
+}
+
+.flat{
+	background: var(--main-bg-color) !important;
+}
+
+.flat-button{
+	background: var(--dark-bg-color) !important;
+}
+
+.flex-center{
+	justify-content: center;
+	align-items: center;
+}
+
+.flex-col{
 	display: flex;
-	justify-content: space-between;
-}
-
-.bot-item{
-	width: 100%;
-	padding: 1rem;
-	border: 1px solid var(--border-color);
-	display: flex;
-	justify-content: space-between;
-	background: var(--lighter-bg-color);
-	margin-bottom: 1rem;
-}
-
-.faq-item{
-	width: 100%;
-	height: 100%;
-	display:flex;
 	flex-direction: column;
 }
 
-.faq-line{
-	width: 100%;
-	min-width: 100%;
+.flex-expand{
+	flex: 1 0 auto;
+}
+
+.flex-row{
 	display: flex;
+	flex-direction: row !important;
+}
+
+.flex-space-between{
 	justify-content: space-between;
+}
+
+.flex-space-evenly{
+	justify-content: space-evenly;
+}
+
+.h100{
+	height: 100%;
+}
+
+.mainshift{
+	margin-top: var(--navbar-height);
+	height: calc(100% - var(--navbar-height));
+}
+
+.margin{
+	padding: 1rem;
+	height: 100%;
+}
+
+.padding{
+	padding: 1rem;
+}
+
+.padding-l{
+	padding-left: 1rem;
+}
+
+.padding-lr{
+	padding: 0 1rem;
+}
+
+.padding-2{
+	padding: 0.5rem;
+}
+
+.margin-bottom{
+	margin-bottom: 1rem;
+}
+
+.margin-bottom-2{
 	margin-bottom: 0.5rem;
 }
 
-.faq-active{
-	margin-right: 1rem;
+.navfill {
+	background: var(--main-bg-color);
+	height: var(--navbar-height);
+	margin-top: -0.5rem;
 }
 
-.faq-headline{
-	font-weight: bold;
+.navlogo{
+	font-size: 3rem;
+	font-weight: 600;
+	margin-bottom: -1rem;
 }
 
-.bot-item:hover{
-	filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.2))
+.navsubtitle{
+	font-size: 0.8rem;
+	padding-left: 0.15rem;
+	font-weight: 10;
 }
 
-.dropshadow-flat {
-	filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.2))
+.square{
+	width: 25rem;
+	height: 25rem;
 }
 
-.debug {
-    border: 1px solid red;
+.status-ok{
+	color: var(--ok-text-color);
 }
 
-.hline {
-	border-bottom: 1px solid var(--border-color);
-	min-width: 100%;
-	margin-bottom: 1rem;
-	margin-top: 1rem;
+.status-error{
+	color: var(--error-text-color);
 }
 
-a, a:hover {
-	color: var(--base-text);
-	text-decoration: none;
+.underlined{
+	text-decoration: underline;
+}
+
+.w5{
+	width: 6%;
+}
+
+.w10{
+	width: 10%;
+}
+
+.w20{
+	width: 20%;
 }

@@ -7,16 +7,35 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous">
+        </script>
+
+    <!-- css animations -->
+    <link rel="stylesheet" href="https://unpkg.com/vue2-animate/dist/vue2-animate.min.css" />
+
+    <!-- Vue - FIXED VERSION -->
+    <script src="https://unpkg.com/vue@3.2.9"></script>
+
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
         integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous" />
 
     <!-- GOOGLE FONTS -->
-    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <!-- Roboto -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
 
-    <!-- Own CSS -->
+    <!-- material icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined" rel="stylesheet">
+
+    <!-- axios -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.4/axios.js"></script>
+
+    <!--Own CSS-->
     <link rel="stylesheet" href="{% static 'api_gui/main.css' %}" />
 
     {% if title %}
@@ -30,25 +49,47 @@
 <body>
     <header class="site-header">
         <nav class="navbar navbar-expand-md fixed-top">
-            <div class="container dropshadow-flat navfill">
-                <a class="navbar-brand" hred="{% url 'gui-main' %}">
-                    <div class=navlogo>
-                        BOT MANAGEMENT PORTAL
+            <div class="container el2 navfill">
+                <a class="navbar-brand" href="{% url 'gui-main' %}">
+                    <div class="flex-col">
+                        <div class=navlogo>
+                            BOT MGMT
+                        </div>
+                        <div class="navsubtitle">
+                            by Demolite
+                        </div>
                     </div>
                 </a>
-            </div>
+                {% if user.is_authenticated %}
 
+                <ul class="nav">
+                    <li class="nav-item">
+                        <div>
+                            {{ user }}
+                        </div>
+                        <a href="{% url 'logout' %}" class="nav-link underlined">
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+                {% else %}
+                <ul class="nav">
+                    <li class="nav-item">
+                        <a href="{% url 'login' %}" class="nav-link underlined">
+                            Login
+                        </a>
+                    </li>
+                </ul>
+                {% endif %}
+            </div>
         </nav>
     </header>
-    <main role=main class="container h-100 dropshadow-flat">
-        <!-- wrap the content in a fill div that extends behind the navbar-->
-        <div class="fill">
-            <!-- shift the content down and apply borders and styling to the shifted content -->
-            <div class="shift">
-                <div class="content">
-                    {% block content %}
-                    {% endblock %}
-                </div>
+    <main role=main class="container h-100 el4">
+        <!-- create a div that is shifted down -->
+        <div class="mainshift">
+            <div class="margin">
+                {% block content %}
+                {% endblock content %}
             </div>
         </div>
     </main>

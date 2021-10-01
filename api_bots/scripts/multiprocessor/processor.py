@@ -4,6 +4,7 @@ from multiprocessing import Process
 import multiprocessing, time
 
 from multiprocessing.managers import BaseManager
+from asgiref.sync import sync_to_async, async_to_sync
 
 # pylint: disable=relative-beyond-top-level
 # pylint: disable=no-member
@@ -34,7 +35,14 @@ def new_manager():
 
 class Bot_Process:
     def __init__(
-        self, name, token, cogs=None, prefixes=None, presence=None, embed_color=None
+        self,
+        name,
+        token,
+        guild: int,
+        cogs=None,
+        prefix=None,
+        presence=None,
+        embed_color=None,
     ):
 
         # the bot object from the bot_master import
@@ -53,16 +61,19 @@ class Bot_Process:
         self.token = token
 
         # cog string, split at this point to get a list of all cogs to be loaded (lowercase!)
-        self.cogs = cogs.lower().split(",")
+        self.cogs = cogs
 
         # prefix to be used for the bot
-        self.prefixes = prefixes
+        self.prefix = prefix
 
         # presence string to be displayed by the bot upon starting, taken from the model
         self.presence = presence
 
         # embed color to be used for the bot
         self.embed_color = embed_color
+
+        # get the guild
+        self.guild = int(guild)
 
         pass
 
@@ -74,9 +85,10 @@ class Bot_Process:
             name=self.name,
             token=self.token,
             cogs=self.cogs,
-            prefixes=self.prefixes,
+            prefix=self.prefix,
             presence=self.presence,
             embed_color=self.embed_color,
+            guild=self.guild,
         )
 
     # function to start the bot child process
@@ -115,3 +127,7 @@ class Bot_Process:
                 return "Offline"
         else:
             return "Offline"
+
+    def update_cog(self, cog_name):
+
+        self.bot.updateCog(cog_name)
