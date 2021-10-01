@@ -7,6 +7,7 @@ For more information on this file, see
 https://docs.djangoproject.com/en/3.1/howto/deployment/wsgi/
 """
 
+from api_bots.models.cogs.event_tickets import EventTickets
 from api_bots.models.models import Role
 import os, django, sys
 
@@ -26,8 +27,11 @@ while not settings.READY:
 # DISCORD BOT STARTUP SEQUENCE
 # Import all necessary items
 from api_bots.models import BotInstance
-from api_bots.models import RoleAssigner
+from api_bots.models import RoleAssigner, EventTickets
 from api_bots.scripts.multiprocessor import processor
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 def get_cogs(bot):
@@ -36,9 +40,13 @@ def get_cogs(bot):
     cogs = []
 
     ra = RoleAssigner.objects.filter(bot=bot)
+    et = EventTickets.objects.filter(bot=bot)
 
     if len(ra) > 0:
         cogs.append(ra[0])
+
+    if len(et) > 0:
+        cogs.append(et[0])
 
     return cogs
 
@@ -63,6 +71,25 @@ if "runserver" in sys.argv:
                 presence=bot.presence,
                 embed_color=bot.embed_color,
                 cogs=get_cogs(bot),
+                guild=bot.server.uid,
             )
 
             bots[bot.name].start()
+
+
+@receiver(post_save, sender=RoleAssigner)
+def update_cog(sender, instance, **kwargs):
+    """RoleAssigner Update Method"""
+    bot_name = instance.bot.name
+    bot_process = bots[bot_name]
+
+    bot_process.update_cog(instance.__class__.__name__)
+
+
+@receiver(post_save, sender=EventTickets)
+def update_cog(sender, instance, **kwargs):
+    """RoleAssigner Update Method"""
+    bot_name = instance.bot.name
+    bot_process = bots[bot_name]
+
+    bot_process.update_cog(instance.__class__.__name__)

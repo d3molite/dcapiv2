@@ -1,6 +1,6 @@
 from django.db.models.fields import NullBooleanField
 from api_bots.models.cogs.role_assigner import RoleAssigner
-from api_bots.models import DiscordRole
+from api_bots.models import EventTickets
 from django.shortcuts import render, HttpResponse
 import sys, json
 
@@ -49,10 +49,11 @@ def edit_cog(request, bot, cog):
 
 
 def get_bots_admin(username):
+    """returns a list of active bots where the user with the given name is admin"""
 
     bot_admin = []
 
-    botInstances = BotInstance.objects.filter(admins__username=username)
+    botInstances = BotInstance.objects.filter(admins__username=username, active=True)
 
     for bot in botInstances:
 
@@ -61,8 +62,10 @@ def get_bots_admin(username):
         bot_dict["name"] = bot.name
         bot_dict["server"] = bot.server.name
         bot_dict["cogs"] = []
-        for cog in BotProcesses[bot.name].cogs:
-            bot_dict["cogs"].append(cog._meta.model.__name__)
+
+        if bot.name in BotProcesses:
+            for cog in BotProcesses[bot.name].cogs:
+                bot_dict["cogs"].append(cog._meta.model.__name__)
 
         bot_admin.append(bot_dict)
 
@@ -77,7 +80,14 @@ def update_cog(request, bot, cog):
         data = json.loads(request.body)
 
         if cog == "RoleAssigner":
-            RoleAssigner.update_vue_data(bot_name=bot, vue_data=data["data"])
+            RoleAssigner.update_vue_data(
+                bot_name=bot, vue_data=data["data"], vue_config=data["config"]
+            )
+
+        if cog == "EventTickets":
+            EventTickets.update_vue_data(
+                bot_name=bot, vue_data=data["data"], vue_config=data["config"]
+            )
 
         return HttpResponse(status=200)
 
@@ -93,7 +103,14 @@ def get_cog(cog, bot_instance):
     if cog == "RoleAssigner":
         cog_instance = RoleAssigner.objects.get(bot=bot_instance)
         vue_data["template"] = RoleAssigner.get_vue_template()
+        vue_data["config"] = RoleAssigner.get_vue_config(cog_instance)
         vue_data["data"] = RoleAssigner.get_vue_data(cog_instance)
+
+    if cog == "EventTickets":
+        cog_instance = EventTickets.objects.get(bot=bot_instance)
+        vue_data["template"] = EventTickets.get_vue_template()
+        vue_data["config"] = EventTickets.get_vue_config(cog_instance)
+        vue_data["data"] = EventTickets.get_vue_data(cog_instance)
 
     return vue_data
 

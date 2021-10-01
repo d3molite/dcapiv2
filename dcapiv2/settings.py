@@ -29,7 +29,7 @@ SECRET_KEY = json["SECRET"]
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "bots.demolite.de"]
+ALLOWED_HOSTS = ["127.0.0.1", "bots.demolite.de", "bots2.demolite.de"]
 
 
 # Application definition

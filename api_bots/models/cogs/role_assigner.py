@@ -58,7 +58,24 @@ class RoleAssigner(models.Model):
         return vue_data
 
     @classmethod
-    def update_vue_data(self, bot_name, vue_data):
+    def get_vue_config(self, instance):
+        """gets a config object for this cog"""
+
+        vue_config = []
+
+        vue_config.append(
+            {
+                "data": instance.message_text,
+                "key": "message_text",
+                "edit": False,
+                "type": "textarea",
+            },
+        )
+
+        return vue_config
+
+    @classmethod
+    def update_vue_data(self, bot_name, vue_data, vue_config):
         """Updates model data received from a vue post"""
 
         # get the bot instance to filter this data
@@ -66,6 +83,11 @@ class RoleAssigner(models.Model):
 
         # get the cog instance to edit
         cog_instance = self.objects.get(bot=bot_instance)
+
+        # first update the config
+        cleaned_config = utils.clean_vue(vue_config)
+
+        cog_instance.message_text = cleaned_config["message_text"]
 
         # list of roles which are present on the interface
         roles_in_interface = []
@@ -84,6 +106,7 @@ class RoleAssigner(models.Model):
                     uid=cleaned_role["uid"],
                     emoji=cleaned_role["emoji"],
                     bot=bot_instance,
+                    cog="RoleAssigner",
                 )
 
                 # add the role to the cog instance
@@ -103,8 +126,8 @@ class RoleAssigner(models.Model):
 
                 roles_in_interface.append(updated_role.id)
 
-        # get all roles
-        db_roles = DiscordRole.objects.filter(bot=bot_instance)
+        # get all roles for the current bot instance
+        db_roles = DiscordRole.objects.filter(bot=bot_instance, cog="RoleAssigner")
 
         # iterate over roles and delete roles which are no longer in the interface
         for role in db_roles:

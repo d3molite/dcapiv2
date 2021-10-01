@@ -18,14 +18,14 @@
         <div class="margin h100 flex-column" id="app">
             <transition-group name="fade" appear>
                 <div v-for="bot in bots" :key="bot" class="flat el1 flex-column">
-                    <div class=padding>
+                    <div class="padding margin-bottom-2">
                         <div class="underlined margin-bottom">
                             [[ bot.name ]] - [[ bot.server ]]
                         </div>
                         <div class="margin-bottom border-bottom">
                             Editable Cogs:
                         </div>
-                        <div v-for="cog in bot.cogs" class="flex-column flat el1">
+                        <div v-for="cog in bot.cogs" class="flex-column flat el1 margin-bottom-2">
                             <a :href="'admin_panel' + '/' + bot.name + '/' + cog">
                                 <div class="padding flat-button">
                                     [[ cog ]]

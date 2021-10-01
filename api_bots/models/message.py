@@ -12,6 +12,11 @@ class DiscordMessage(models.Model):
         max_length=100, help_text="Message ID in INT format.", null=True
     )
 
+    # channel the message is in
+    cuid = models.CharField(
+        max_length=100, help_text="Channel ID in INT format.", null=True
+    )
+
     # bot this message is assigned to
     bot = models.ForeignKey(BotInstance, on_delete=models.CASCADE, null=True)
 

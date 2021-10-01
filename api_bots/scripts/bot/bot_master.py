@@ -1,6 +1,7 @@
 import discord, asyncio
 
 from discord.ext import commands, tasks
+from dislash import InteractionClient
 
 # pylint: disable=relative-beyond-top-level
 from .cogs import (
@@ -13,13 +14,15 @@ from .cogs import (
     voicechannel,
     ticket,
     antispam,
+    role_assigner,
+    event_tickets,
 )
 
 # main class that the discord bots runs on
 class Bot:
 
     # initialize the class
-    def __init__(self, name, token, prefix, presence, cogs, embed_color):
+    def __init__(self, name, token, prefix, presence, cogs, embed_color, guild):
 
         # store the name and presence
         self.name = name
@@ -40,7 +43,10 @@ class Bot:
         self.bot = commands.Bot(
             command_prefix=self.prefix, loop=self.loop, intents=self.intents
         )
+
         self.bot.remove_command("help")
+
+        self.slash = InteractionClient(self.bot, test_guilds=[guild])
 
         # store the token
         self.token = token
@@ -63,10 +69,49 @@ class Bot:
             self.bot.start(self.token, bot=True, reconnect=True)
         )
 
+    def updateCog(self, cog_name):
+        """Method that updates a cog after database changes have been committed in the front-end."""
+        update_fut = asyncio.run_coroutine_threadsafe(
+            self.update_cog(cog_name), self.loop
+        )
+        update_fut.result()
+
+    async def update_cog(self, cog_name):
+
+        print("Updating Cog: " + cog_name)
+        cog = self.bot.get_cog(cog_name + "Cog")
+
+        if cog != None:
+            await cog.update_cog()
+        else:
+            print("Updating " + cog_name + " on " + self.name + " failed")
+
     # add a function which splits the cog list and adds the cogs to the bot
     def cogManager(self):
 
-        # for cog in self.cogs:
+        for cog in self.cogs:
+
+            cog_name = cog.__class__.__name__
+
+            if cog_name == "RoleAssigner":
+
+                self.bot.add_cog(
+                    role_assigner.RoleAssignerCog(
+                        bot=self.bot,
+                        name=self.name,
+                        embed_color=self.embed_color,
+                    )
+                )
+
+            if cog_name == "EventTickets":
+
+                self.bot.add_cog(
+                    event_tickets.EventTicketsCog(
+                        bot=self.bot,
+                        name=self.name,
+                        embed_color=self.embed_color,
+                    )
+                )
 
         #     if cog == "faq":
 
@@ -185,10 +230,3 @@ class Events(commands.Cog):
         print("------------------")
         print("Ready!")
         print("------------------")
-
-    @commands.Cog.listener()
-    async def on_message(self, ctx):
-
-        if ctx.content == "!ping":
-
-            await ctx.channel.send("pong")

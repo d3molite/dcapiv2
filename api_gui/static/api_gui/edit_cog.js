@@ -8,6 +8,7 @@ var vue_data = {
     "editName": false,
 }
 
+
 app = Vue.createApp({
     delimiters: ["[[", "]]"],
     data() {
@@ -52,6 +53,14 @@ app = Vue.createApp({
                 url: window.location.href + "save/",
                 data: this.cog
             })
+        },
+        prettify_key(value) {
+            split = value.split("_")
+            ret = ""
+            for (i = 0; i < split.length; i++) {
+                split[i] = split[i].charAt(0).toUpperCase() + split[i].slice(1)
+            }
+            return split.join(" ")
         },
     }
 }).mount("#app")
